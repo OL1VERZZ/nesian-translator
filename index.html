@@ -60,6 +60,7 @@
         function applyAccentsRule(text) {
             let result = '';
             let lastAccentType = '';
+            let firstAccentApplied = false;
             
             for (let i = 0; i < text.length; i++) {
                 let char = text[i];
@@ -69,11 +70,12 @@
                     let baseChar = accentMatch[1].normalize("NFD")[0]; 
                     let accentType = accentMatch[1].normalize("NFD")[1] || accentMatch[1];
                     
-                    if (lastAccentType === accentType) {
-                        result += baseChar;
-                    } else {
+                    if (!firstAccentApplied || lastAccentType !== accentType) {
                         result += char;
                         lastAccentType = accentType;
+                        firstAccentApplied = true;
+                    } else {
+                        result += baseChar;
                     }
                 } else {
                     result += char;
