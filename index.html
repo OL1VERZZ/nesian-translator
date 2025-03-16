@@ -55,6 +55,9 @@
             // Step 4: Apostrophe Rule (Ensure 'W' translates correctly and remove original apostrophes)
             translated = translated.replace(/(?<!')'/g, ""); // Remove original apostrophes, keeping W-translated ones
 
+            // Ensure standalone apostrophes remain
+            translated = translated.replace(/'/g, "'");
+
             // Step 5: Accents Rule
             translated = applyAccentsRule(translated);
 
@@ -84,4 +87,3 @@
     </script>
 </body>
 </html>
-
