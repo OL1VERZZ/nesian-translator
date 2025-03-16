@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nesian Translator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        textarea { width: 80%; height: 100px; margin-bottom: 10px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        p { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Nesian Translator</h1>
+    <textarea id="inputText" placeholder="Enter English text..."></textarea>
+    <br>
+    <button onclick="translateText()">Translate</button>
+    <p>Output:</p>
+    <textarea id="outputText" readonly></textarea>
+
+    <script>
+        function translateText() {
+            let input = document.getElementById("inputText").value;
+            let output = translateToNesian(input);
+            document.getElementById("outputText").value = output;
+        }
+
+        function translateToNesian(input) {
+            const alphabetMap = {
+                'A': 'Āù', 'B': 'Bè', 'C': 'Ç', 'D': 'Dè', 'E': 'È', 'F': 'F', 'G': 'G', 'H': 'H', 'I': 'È', 'J': 'J',
+                'K': 'C', 'L': 'L', 'M': 'Mē', 'N': 'Nē', 'O': 'Ò', 'P': 'P', 'Q': 'Q', 'R': 'R', 'S': 'Ç', 'T': 'Chò',
+                'U': 'Ù', 'V': 'V', 'W': "'", 'X': 'X', 'Y': 'Yù', 'Z': 'Z'
+            };
+
+            // Step 1: Direct Letter Translation
+            let translated = input.split('').map(char => {
+                if (char.toUpperCase() === 'I' && input.trim() === 'I') return 'Ē'; // Rule for "I" as oneself
+                return alphabetMap[char.toUpperCase()] || char; // Preserve spaces & punctuation
+            }).join('');
+
+            // Step 2: Æ/Œ Rule (Handles both directions of fusion)
+            translated = translated.replace(/ĀùÈ|ÈĀù/g, 'Æ');
+            translated = translated.replace(/ÒÈ|ÈÒ/g, 'Œ');
+
+            // Step 3: Thorn (Þ) Rule
+            translated = translated.replace(/ChòH/g, 'Þ');
+
+            // Step 4: Apostrophe Rule (Remove apostrophes in contractions)
+            translated = translated.replace(/'/g, '');
+
+            // Step 5: Accents Rule
+            translated = applyAccentsRule(translated);
+
+            return translated;
+        }
+
+        function applyAccentsRule(text) {
+            let vowelsWithMarks = ['Ā', 'È', 'Ò', 'Ù'];
+            let lastMark = '';
+            let result = '';
+
+            for (let char of text) {
+                if (vowelsWithMarks.includes(char)) {
+                    if (lastMark === char) {
+                        result += char.normalize("NFD").replace(/[̀-ͯ]/g, ""); // Remove accent
+                    } else {
+                        result += char; // Keep the accent if it's different
+                        lastMark = char;
+                    }
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+    </script>
+</body>
+</html>
