@@ -43,9 +43,9 @@
                 return alphabetMap[char] || char; // Preserve spaces & punctuation
             }).join('');
 
-            // Step 2: Æ/Œ Rule (Handles both directions of fusion)
-            translated = translated.replace(/āùè|èāù/gi, 'æù');
-            translated = translated.replace(/òè|èò/gi, 'œ');
+            // Step 2: Æ/Œ Rule (Handles both directions of fusion, including Ē)
+            translated = translated.replace(/āù[èē]|[èē]āù/gi, 'æù');
+            translated = translated.replace(/ò[èē]|[èē]ò/gi, 'œ');
 
             // Step 3: Thorn (Þ) Rule (Handles capitalization)
             translated = translated.replace(/Chòh/g, 'Þ'); // Capital "TH"
@@ -63,16 +63,17 @@
 
         function applyAccentsRule(text) {
             let vowelsWithMarks = ['Ā', 'È', 'Ò', 'Ù', 'ā', 'è', 'ò', 'ù'];
-            let lastMark = '';
+            let lastAccent = '';
             let result = '';
 
             for (let char of text) {
                 if (vowelsWithMarks.includes(char)) {
-                    if (lastMark === char.normalize("NFD").replace(/[̀-ͯ]/g, "")) {
-                        result += char.normalize("NFD").replace(/[̀-ͯ]/g, ""); // Remove accent visually
+                    let accentType = char[0];
+                    if (accentType === lastAccent) {
+                        result += char.toLowerCase(); // Remove accent visually if same as previous vowel
                     } else {
                         result += char; // Keep the accent if it's different
-                        lastMark = char.normalize("NFD").replace(/[̀-ͯ]/g, "");
+                        lastAccent = accentType;
                     }
                 } else {
                     result += char;
