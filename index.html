@@ -42,8 +42,8 @@
                 return alphabetMap[char] || char;
             }).join('');
 
-            translated = translated.replace(/āù[èē]|[èē]āù/gi, 'æù');
-            translated = translated.replace(/ò[èē]|[èē]ò/gi, 'œ');
+            translated = translated.replace(/([āĀ]ù[èē]|[èē][āĀ]ù)/g, 'æù');
+            translated = translated.replace(/([òÒ][èē]|[èē][òÒ])/g, 'œ');
 
             translated = translated.replace(/Chòh/g, 'Þ');
             translated = translated.replace(/ChòH/g, 'Þ');
@@ -59,7 +59,6 @@
 
         function applyAccentsRule(text) {
             let result = '';
-            let lastAccent = '';
             let lastAccentType = '';
             
             for (let i = 0; i < text.length; i++) {
@@ -67,12 +66,13 @@
                 let accentMatch = char.match(/([ĀÈÒÙāèòù])/);
                 
                 if (accentMatch) {
+                    let baseChar = accentMatch[1].normalize("NFD")[0]; 
                     let accentType = accentMatch[1].normalize("NFD")[1] || accentMatch[1];
+                    
                     if (lastAccentType === accentType) {
-                        result += accentMatch[1].normalize("NFD")[0]; 
+                        result += baseChar;
                     } else {
                         result += char;
-                        lastAccent = char;
                         lastAccentType = accentType;
                     }
                 } else {
