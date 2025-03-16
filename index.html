@@ -63,10 +63,11 @@
             
             for (let i = 0; i < text.length; i++) {
                 let char = text[i];
-                if (char.match(/[ĀÈÒÙāèòù]/)) {
-                    let accentType = char.normalize("NFD")[1] || char;
+                let accentMatch = char.match(/([ĀÈÒÙāèòù])/);
+                if (accentMatch) {
+                    let accentType = accentMatch[1].normalize("NFD")[1] || accentMatch[1];
                     if (lastAccent === accentType) {
-                        result += char.normalize("NFD")[0]; 
+                        result += accentMatch[1].normalize("NFD")[0]; 
                     } else {
                         result += char;
                         lastAccent = accentType;
