@@ -36,10 +36,10 @@
                 'U': 'Ù', 'V': 'V', 'W': "'", 'X': 'X', 'Y': 'Yù', 'Z': 'Z'
             };
 
-            // Step 1: Direct Letter Translation (Preserve Capitalization)
-            let translated = input.split('').map((char, index) => {
-                if (char === 'I' && (index === 0 || input[index - 1] === ' ')) return 'Ē'; // Rule for "I" as oneself
-                if (char === 'i' && (index === 0 || input[index - 1] === ' ')) return 'ē'; // Lowercase "I" as oneself
+            // Step 1: Direct Letter Translation
+            let translated = input.split('').map((char, index, arr) => {
+                if (char === 'I' && input.trim() === 'I') return 'Ē'; // Rule for "I" as oneself
+                if (char === 'i' && input.trim() === 'i') return 'ē'; // Lowercase "I" as oneself
                 return alphabetMap[char] || char; // Preserve spaces & punctuation
             }).join('');
 
@@ -47,11 +47,13 @@
             translated = translated.replace(/āùè|èāù/gi, 'æù');
             translated = translated.replace(/òè|èò/gi, 'œ');
 
-            // Step 3: Thorn (Þ) Rule
-            translated = translated.replace(/chòh/gi, 'þ');
+            // Step 3: Thorn (Þ) Rule (Handles capitalization)
+            translated = translated.replace(/Chòh/g, 'Þ'); // Capital "TH"
+            translated = translated.replace(/ChòH/g, 'Þ'); // Mixed-case "Th"
+            translated = translated.replace(/chòh/g, 'þ'); // Lowercase "th"
 
-            // Step 4: Apostrophe Rule (Ensure 'W' translates correctly and apostrophes are not removed)
-            translated = translated.replace(/w/g, "'"); // Ensure W turns into '
+            // Step 4: Apostrophe Rule (Ensure 'W' translates correctly and remove original apostrophes)
+            translated = translated.replace(/(?<!')'/g, ""); // Remove original apostrophes, keeping W-translated ones
 
             // Step 5: Accents Rule
             translated = applyAccentsRule(translated);
@@ -66,11 +68,11 @@
 
             for (let char of text) {
                 if (vowelsWithMarks.includes(char)) {
-                    if (lastMark === char) {
-                        result += char.normalize("NFD").replace(/[̀-ͯ]/g, ""); // Remove accent
+                    if (lastMark === char.normalize("NFD").replace(/[̀-ͯ]/g, "")) {
+                        result += char.normalize("NFD").replace(/[̀-ͯ]/g, ""); // Remove accent visually
                     } else {
                         result += char; // Keep the accent if it's different
-                        lastMark = char;
+                        lastMark = char.normalize("NFD").replace(/[̀-ͯ]/g, "");
                     }
                 } else {
                     result += char;
