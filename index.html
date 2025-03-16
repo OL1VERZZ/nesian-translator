@@ -60,12 +60,13 @@
         function applyAccentsRule(text) {
             let result = '';
             let lastAccent = '';
-
-            for (let char of text) {
+            
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
                 if (char.match(/[ĀÈÒÙāèòù]/)) {
-                    let accentType = char[0];
+                    let accentType = char.normalize("NFD")[1] || char;
                     if (lastAccent === accentType) {
-                        result += char.toLowerCase();
+                        result += char.normalize("NFD")[0]; 
                     } else {
                         result += char;
                         lastAccent = accentType;
@@ -79,4 +80,3 @@
     </script>
 </body>
 </html>
-
