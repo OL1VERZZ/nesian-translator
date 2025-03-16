@@ -28,26 +28,30 @@
 
         function translateToNesian(input) {
             const alphabetMap = {
+                'a': 'āù', 'b': 'bè', 'c': 'ç', 'd': 'dè', 'e': 'è', 'f': 'f', 'g': 'g', 'h': 'h', 'i': 'è', 'j': 'j',
+                'k': 'c', 'l': 'l', 'm': 'mē', 'n': 'nē', 'o': 'ò', 'p': 'p', 'q': 'q', 'r': 'r', 's': 'ç', 't': 'chò',
+                'u': 'ù', 'v': 'v', 'w': "'", 'x': 'x', 'y': 'yù', 'z': 'z',
                 'A': 'Āù', 'B': 'Bè', 'C': 'Ç', 'D': 'Dè', 'E': 'È', 'F': 'F', 'G': 'G', 'H': 'H', 'I': 'È', 'J': 'J',
                 'K': 'C', 'L': 'L', 'M': 'Mē', 'N': 'Nē', 'O': 'Ò', 'P': 'P', 'Q': 'Q', 'R': 'R', 'S': 'Ç', 'T': 'Chò',
                 'U': 'Ù', 'V': 'V', 'W': "'", 'X': 'X', 'Y': 'Yù', 'Z': 'Z'
             };
 
-            // Step 1: Direct Letter Translation
-            let translated = input.split('').map(char => {
-                if (char.toUpperCase() === 'I' && input.trim() === 'I') return 'Ē'; // Rule for "I" as oneself
-                return alphabetMap[char.toUpperCase()] || char; // Preserve spaces & punctuation
+            // Step 1: Direct Letter Translation (Preserve Capitalization)
+            let translated = input.split('').map((char, index) => {
+                if (char === 'I' && (index === 0 || input[index - 1] === ' ')) return 'Ē'; // Rule for "I" as oneself
+                if (char === 'i' && (index === 0 || input[index - 1] === ' ')) return 'ē'; // Lowercase "I" as oneself
+                return alphabetMap[char] || char; // Preserve spaces & punctuation
             }).join('');
 
             // Step 2: Æ/Œ Rule (Handles both directions of fusion)
-            translated = translated.replace(/ĀùÈ|ÈĀù/g, 'Æ');
-            translated = translated.replace(/ÒÈ|ÈÒ/g, 'Œ');
+            translated = translated.replace(/āùè|èāù/gi, 'æù');
+            translated = translated.replace(/òè|èò/gi, 'œ');
 
             // Step 3: Thorn (Þ) Rule
-            translated = translated.replace(/ChòH/g, 'Þ');
+            translated = translated.replace(/chòh/gi, 'þ');
 
-            // Step 4: Apostrophe Rule (Remove apostrophes in contractions)
-            translated = translated.replace(/'/g, '');
+            // Step 4: Apostrophe Rule (Ensure 'W' translates correctly and apostrophes are not removed)
+            translated = translated.replace(/w/g, "'"); // Ensure W turns into '
 
             // Step 5: Accents Rule
             translated = applyAccentsRule(translated);
@@ -56,7 +60,7 @@
         }
 
         function applyAccentsRule(text) {
-            let vowelsWithMarks = ['Ā', 'È', 'Ò', 'Ù'];
+            let vowelsWithMarks = ['Ā', 'È', 'Ò', 'Ù', 'ā', 'è', 'ò', 'ù'];
             let lastMark = '';
             let result = '';
 
